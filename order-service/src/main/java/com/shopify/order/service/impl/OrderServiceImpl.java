@@ -1,5 +1,6 @@
 package com.shopify.order.service.impl;
 
+import com.shopify.order.commons.dto.InventoryResponseDto;
 import com.shopify.order.dto.OrderLineItemsDto;
 import com.shopify.order.dto.OrderRequest;
 import com.shopify.order.dto.OrderResponse;
@@ -9,10 +10,13 @@ import com.shopify.order.repository.OrderRepository;
 import com.shopify.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,6 +27,7 @@ import java.util.UUID;
 public class OrderServiceImpl implements OrderService {
 
     private  final OrderRepository orderRepository;
+    private final WebClient webClient;
 
 
     @Override
@@ -41,7 +46,36 @@ public class OrderServiceImpl implements OrderService {
 
         order.setOrderLineItems(orderLineItemsList);
 
-        // Save order (with cascade = ALL, line items are saved too)
+        List<String> skuCodeList = order.getOrderLineItems().stream()
+                .map(OrderLineItems::getSkuCode).toList();
+
+        InventoryResponseDto[] inventoryResponseDtoList;
+
+        try {
+            inventoryResponseDtoList = webClient
+                    .get()
+                    .uri("http://localhost:8082/api/v1/inventory",
+                            uriBuilder -> uriBuilder.queryParam("skuCode", skuCodeList).build())
+                    .retrieve()
+                    .onStatus(HttpStatusCode::isError, clientResponse ->
+                            clientResponse.bodyToMono(String.class)
+                                    .flatMap(errorBody -> {
+                                        return Mono.error(new RuntimeException("Inventory Service Error: " + errorBody));
+                                    })
+                    )
+                    .bodyToMono(InventoryResponseDto[].class)
+                    .block();
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to check inventory: " + e.getMessage());
+        }
+
+        boolean allProductsInStock = Arrays.stream(inventoryResponseDtoList)
+                .allMatch(InventoryResponseDto::isInStock);
+
+        if (!allProductsInStock) {
+            throw new IllegalArgumentException("One or more products are not in stock");
+        }
+
         Order savedOrder = orderRepository.save(order);
 
         List<OrderLineItemsDto> savedOrderLineItemsDtoList = savedOrder.getOrderLineItems().stream()
@@ -53,6 +87,9 @@ public class OrderServiceImpl implements OrderService {
                 savedOrder.getOrderNumber(),
                 savedOrderLineItemsDtoList
         );
+
+
+
     }
 
 

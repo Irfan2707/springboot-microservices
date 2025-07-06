@@ -24,7 +24,7 @@ public class InventoryServiceApplication {
 		return args -> {
 			List<Inventory> inventoryList = new ArrayList<>();
 			Inventory inventory = new Inventory();
-			inventory.setSkuCode("Iphone-13-red");
+			inventory.setSkuCode("iphone-13-red");
 			inventory.setQuantity(10);
 
 			Inventory inventory1 = new Inventory();
@@ -32,7 +32,7 @@ public class InventoryServiceApplication {
 			inventory1.setQuantity(5);
 
 			Inventory inventory2 = new Inventory();
-			inventory2.setSkuCode("Iphone-15");
+			inventory2.setSkuCode("iphone-15");
 			inventory2.setQuantity(0);
 
 			inventoryList.add(inventory);
