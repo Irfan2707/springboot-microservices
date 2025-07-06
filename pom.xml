@@ -18,6 +18,7 @@
         <module>product-service</module>
         <module>inventory-service</module>
         <module>discovery-server</module>
+        <module>api-gateway-server</module>
     </modules>
     <url>https://github.com/nineleaps/shopify-product-service</url>
 
