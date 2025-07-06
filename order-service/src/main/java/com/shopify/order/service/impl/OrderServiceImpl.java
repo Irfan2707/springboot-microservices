@@ -27,7 +27,7 @@ import java.util.UUID;
 public class OrderServiceImpl implements OrderService {
 
     private  final OrderRepository orderRepository;
-    private final WebClient webClient;
+    private final WebClient.Builder webClientBuilder;
 
 
     @Override
@@ -52,9 +52,9 @@ public class OrderServiceImpl implements OrderService {
         InventoryResponseDto[] inventoryResponseDtoList;
 
         try {
-            inventoryResponseDtoList = webClient
+            inventoryResponseDtoList = webClientBuilder.build()
                     .get()
-                    .uri("http://localhost:8082/api/v1/inventory",
+                    .uri("http://inventory-service/api/v1/inventory",
                             uriBuilder -> uriBuilder.queryParam("skuCode", skuCodeList).build())
                     .retrieve()
                     .onStatus(HttpStatusCode::isError, clientResponse ->

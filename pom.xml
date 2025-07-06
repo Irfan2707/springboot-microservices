@@ -17,6 +17,7 @@
         <module>order-service</module>
         <module>product-service</module>
         <module>inventory-service</module>
+        <module>discovery-server</module>
     </modules>
     <url>https://github.com/nineleaps/shopify-product-service</url>
 
@@ -44,7 +45,20 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>21</java.version>
         <lombok.version>1.18.32</lombok.version>
+        <spring-cloud.version>2023.0.1</spring-cloud.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>
