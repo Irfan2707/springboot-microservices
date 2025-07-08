@@ -22,14 +22,14 @@ public class InventoryController {
 
     @GetMapping("{sku-code}")
     @ResponseStatus(HttpStatus.OK)
-    private boolean isInStock(@PathVariable("sku-code") String skuCode) {
+    public boolean isInStock(@PathVariable("sku-code") String skuCode) {
         return inventoryService.isInStock(skuCode);
 
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    private List<InventoryResponseDto> isInStock(@RequestParam List<String> skuCode) {
+    public List<InventoryResponseDto> isInStock(@RequestParam List<String> skuCode) {
         return inventoryService.isInStock(skuCode);
 
     }
